@@ -64,7 +64,6 @@ C64::C64()
 	RAM1541 = (uint8*)heap_caps_malloc(0x0800, MALLOC_CAP_SPIRAM);//new uint8[0x0800];
 	ROM1541 = (uint8*)heap_caps_malloc(0x4000, MALLOC_CAP_SPIRAM);//new uint8[0x4000];
 
-	printf("HEAP:0x%x (%#08x)\n", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
 
 	// Create the chips
 	TheCPU = new MOS6510(this, RAM, Basic, Kernal, Char, Color);
@@ -75,17 +74,14 @@ C64::C64()
 	TheVIC = TheCPU->TheVIC = new MOS6569(this, TheDisplay, TheCPU, RAM, Char, Color);
 	TheSID = TheCPU->TheSID = new MOS6581(this);
 	
-	printf("HEAP:0x%x (%#08x)\n", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
 
 	TheCIA1 = TheCPU->TheCIA1 = new MOS6526_1(TheCPU, TheVIC);
-	
-	printf("HEAP:0x%x (%#08x)\n", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
 	TheCIA2 = TheCPU->TheCIA2 = TheCPU1541->TheCIA2 = new MOS6526_2(TheCPU, TheVIC, TheCPU1541);
-	printf("HEAP:0x%x (%#08x)\n", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
+
 	TheIEC = TheCPU->TheIEC = new IEC(TheDisplay);
-	printf("HEAP:0x%x (%#08x)\n", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
+
 	TheREU = TheCPU->TheREU = new REU(TheCPU);
-	printf("HEAP:0x%x (%#08x)\n", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
+
 
 	// Initialize RAM with powerup pattern
 	for (i=0, p=RAM; i<512; i++) {

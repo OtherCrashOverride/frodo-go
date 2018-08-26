@@ -37,40 +37,6 @@ const char* SD_BASE_PATH = "/sd";
 
 #define AUDIO_SAMPLE_RATE (32000)
 
-// QueueHandle_t vidQueue;
-
-
-
-// void videoTask(void *arg)
-// {
-//     while(1)
-//     {
-//         uint8_t* param;
-//         xQueuePeek(vidQueue, &param, portMAX_DELAY);
-//         //
-//         // if (param == (uint16_t*)1)
-//         //     break;
-
-//         ili9341_write_frame_rectangleLE(0, 0, 320, 240, (uint16_t*)framebuffer);
-
-//         //memcpy(framebuffer, param, sizeof(framebuffer));
-//         //ili9341_write_frame_atari7800(framebuffer, display_palette16);
-
-//         xQueueReceive(vidQueue, &param, portMAX_DELAY);
-
-//     }
-
-//     odroid_display_lock_sms_display();
-
-//     // Draw hourglass
-//     odroid_display_show_hourglass();
-
-//     odroid_display_unlock_sms_display();
-
-//     vTaskDelete(NULL);
-
-//     while (1) {}
-// }
 
 #define BASIC_ROM_FILE	"/sd/roms/c64/Basic.rom"
 #define KERNAL_ROM_FILE	"/sd/roms/c64/Kernal.rom"
@@ -136,28 +102,7 @@ bool load_rom_files(void)
 	return true;
 }
 
-void emu_init()
-{
-    // framebuffer = (uint8_t*)malloc(320 * 240); // heap_caps_malloc(VIDEO_WIDTH * VIDEO_HEIGHT * 2, MALLOC_CAP_SPIRAM);
-    // if (!framebuffer) abort();
-    
-    //ThePrefs.Load(prefs_path);
 
-	// Create and start C64
-	TheC64 = new C64;
-	if (load_rom_files())
-		TheC64->Run();
-}
-
-
-void emu_step(odroid_gamepad_state* gamepad)
-{
-
-    //odroid_audio_submit((int16_t*)sampleBuffer, length);
-}
-
-
-bool RenderFlag;
 extern "C" void app_main()
 {
     printf("frodo-go started.\n");
@@ -195,94 +140,23 @@ extern "C" void app_main()
   
     odroid_audio_init(AUDIO_SAMPLE_RATE);
 
-    emu_init();
+        
+    //ThePrefs.Load(prefs_path);
 
-    // vidQueue = xQueueCreate(1, sizeof(uint16_t*));
-    // xTaskCreatePinnedToCore(&videoTask, "videoTask", 1024 * 4, NULL, 5, NULL, 1);
+    ThePrefs.DriveType[0] = DRVTYPE_D64;
+    strcpy(ThePrefs.DrivePath[0], "/sd/roms/c64/M.U.L.E.d64");
 
+	// Create and start C64
+	TheC64 = new C64;
+	if (load_rom_files())
+    {
+		TheC64->Run();
+    }
 
-    // uint startTime;
-    // uint stopTime;
-    // uint totalElapsedTime = 0;
-    // int frame = 0;
-    // int renderFrames = 0;
-    // uint16_t muteFrameCount = 0;
-    // uint16_t powerFrameCount = 0;
-
-    // odroid_gamepad_state last_gamepad;
-    // odroid_input_gamepad_read(&last_gamepad);
+    printf("load_rom_files failed.\n");
 
     while(1)
     {
-        // startTime = xthal_get_ccount();
-
-
-        // odroid_gamepad_state gamepad;
-        // odroid_input_gamepad_read(&gamepad);
-
-        // if (last_gamepad.values[ODROID_INPUT_MENU] &&
-        //     !gamepad.values[ODROID_INPUT_MENU])
-        // {
-        //     esp_restart();
-        // }
-
-        // if (!last_gamepad.values[ODROID_INPUT_VOLUME] &&
-        //     gamepad.values[ODROID_INPUT_VOLUME])
-        // {
-        //     odroid_audio_volume_change();
-        //     printf("%s: Volume=%d\n", __func__, odroid_audio_volume_get());
-        // }
-
-
-        // emu_step(&gamepad);
-        // //printf("stepped.\n");
-
-
-        // if (RenderFlag)
-        // {
-        //     uint8_t* fb = framebuffer;
-        //     xQueueSend(vidQueue, &fb, portMAX_DELAY);
-
-        //     ++renderFrames;
-        // }
-
-        // last_gamepad = gamepad;
-
-
-        // // end of frame
-        // stopTime = xthal_get_ccount();
-
-
-        // odroid_battery_state battery;
-        // odroid_input_battery_level_read(&battery);
-
-
-        // int elapsedTime;
-        // if (stopTime > startTime)
-        //     elapsedTime = (stopTime - startTime);
-        // else
-        //     elapsedTime = ((uint64_t)stopTime + (uint64_t)0xffffffff) - (startTime);
-
-        // totalElapsedTime += elapsedTime;
-        // ++frame;
-
-        // if (frame == 60)
-        // {
-        //     float seconds = totalElapsedTime / (CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ * 1000000.0f);
-        //     float fps = frame / seconds;
-        //     float renderFps = renderFrames / seconds;
-
-        //     printf("HEAP:0x%x (%#08x), SIM:%f, REN:%f, BATTERY:%d [%d]\n",
-        //         esp_get_free_heap_size(),
-        //         heap_caps_get_free_size(MALLOC_CAP_DMA),
-        //         fps,
-        //         renderFps,
-        //         battery.millivolts,
-        //         battery.percentage);
-
-        //     frame = 0;
-        //     renderFrames = 0;
-        //     totalElapsedTime = 0;
-        // }
+        vTaskDelay(1);
     }
 }

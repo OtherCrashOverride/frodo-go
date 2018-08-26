@@ -27,7 +27,7 @@
 
 MOS6581::MOS6581(C64 *c64) : the_c64(c64)
 {
-	printf("%s\n", __func__);
+	//printf("%s\n", __func__);
 
 	the_renderer = NULL;
 	for (int i=0; i<32; i++)

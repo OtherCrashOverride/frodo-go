@@ -85,6 +85,7 @@ extern "C"
 {
 #include "../odroid/odroid_display.h"
 #include "../odroid/odroid_keyboard.h"
+#include "../odroid/odroid_input.h"
 }
 
 //#include <SDL.h>
@@ -234,6 +235,8 @@ C64Display::C64Display(C64 *the_c64) : TheC64(the_c64)
 
 	odroid_keyboard_event_callback_set(&keyboard_callback);
 	odroid_keyboard_init();
+
+	odroid_input_battery_level_init();
 }
 
 
@@ -262,9 +265,14 @@ void C64Display::NewPrefs(Prefs *prefs)
 
 //uint16_t* tempfb;
 uint32_t frameCount;
+uint totalElapsedTime = 0;
+uint renderFrames = 0;
+uint startTime = 0;
 
 void C64Display::Update(void)
 {
+	//uint startTime = xthal_get_ccount();
+
 	if (!(frameCount & 1))
 	{
 #if 0
@@ -295,11 +303,47 @@ void C64Display::Update(void)
 		uint8_t* fb = framebuffer;
 		xQueueSend(vidQueue, &fb, portMAX_DELAY);
 
+		++renderFrames;
 #endif
 		//printf("%s: done.\n", __func__);
 	}
 
+
+
 	++frameCount;
+
+	if (frameCount == 50)
+	{
+		uint stopTime = xthal_get_ccount();
+
+		odroid_battery_state battery;
+		odroid_input_battery_level_read(&battery);
+
+		int elapsedTime;
+		if (stopTime >= startTime)
+			elapsedTime = (stopTime - startTime);
+		else
+			elapsedTime = ((uint64_t)stopTime + (uint64_t)0xffffffff) - (startTime);
+
+
+		float seconds = elapsedTime / (CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ * 1000000.0f);
+		float fps = frameCount / seconds;
+		float renderFps = renderFrames / seconds;
+
+		//printf("CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ=%d, totalElapsedTime=%d, seconds=%f\n", CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ, totalElapsedTime, seconds);
+
+		printf("HEAP:0x%x (%#08x), SIM:%f, REN:%f, BATT:%d [%d%%]\n",
+			esp_get_free_heap_size(),
+			heap_caps_get_free_size(MALLOC_CAP_DMA),
+			fps,
+			renderFps,
+			battery.millivolts,
+			battery.percentage);
+
+		frameCount = 0;
+		renderFrames = 0;
+		startTime = stopTime;
+	}
 
 #if 0
 	quit_requested = !X11Window_ProcessMessages(x11Window);

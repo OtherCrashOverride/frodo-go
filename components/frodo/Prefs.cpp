@@ -39,7 +39,7 @@ Prefs::Prefs()
 	for (int i=0; i<4; i++)
 		DriveType[i] = DRVTYPE_D64;
 
-	strcpy(DrivePath[0], "/sd/roms/c64/ULTIMA4A.D64");
+	strcpy(DrivePath[0], "");
 	strcpy(DrivePath[1], "");
 	strcpy(DrivePath[2], "");
 	strcpy(DrivePath[3], "");

@@ -428,15 +428,15 @@ DigitalRenderer::DigitalRenderer()
 
     sndbufsize = (SAMPLE_FREQ / 25);
     
-    sound_buffer = (int16_t*)malloc(SAMPLE_FREQ / 25 * sizeof(short));
+    sound_buffer = (int16_t*)malloc(sndbufsize * sizeof(short));
     if (!sound_buffer) abort();
 
     ready = true;
 
-    sampleBuffer = (int16*)malloc(SAMPLE_FREQ / 25 * sizeof(short) * SOUND_CHANNEL_COUNT);
+    sampleBuffer = (int16*)malloc(sndbufsize * sizeof(short) * SOUND_CHANNEL_COUNT);
     if (!sampleBuffer) abort();
 
-    printf("%s: sndbufsize=%d\n", __func__, sndbufsize);
+    //printf("%s: sndbufsize=%d\n", __func__, sndbufsize);
     #endif
 }
 
