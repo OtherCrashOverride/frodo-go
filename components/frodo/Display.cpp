@@ -602,12 +602,37 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 	odroid_gamepad_state gamepad;
 	odroid_input_gamepad_read(&gamepad);
 
+
+	if (gamepad.values[ODROID_INPUT_UP])
+		*joystick &= ~0x01;
+	else
+		*joystick |= 0x01;
+
+	if (gamepad.values[ODROID_INPUT_DOWN])
+		*joystick &= ~0x02;
+	else
+		*joystick |= 0x02;
+
+	if (gamepad.values[ODROID_INPUT_LEFT])
+		*joystick &= ~0x04;
+	else
+		*joystick |= 0x04;
+
+	if (gamepad.values[ODROID_INPUT_RIGHT])
+		*joystick &= ~0x08;
+	else
+		*joystick |= 0x08;
+
+	if (gamepad.values[ODROID_INPUT_A])
+		*joystick &= ~0x10;
+	else
+		*joystick |= 0x10; 
+
+
 	if (prev_gamepad.values[ODROID_INPUT_SELECT] &&
 		!gamepad.values[ODROID_INPUT_SELECT])
 	{
-		func_flag = !func_flag;
-		
-		
+		func_flag = !func_flag;				
 	}
 
 	if (!prev_gamepad.values[ODROID_INPUT_VOLUME] &&
