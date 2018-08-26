@@ -83,7 +83,7 @@ typedef struct
 typedef enum
 {
     ODROID_KEYBOARD_LED_NONE = 0,
-    ODROID_KEYBAORD_LED_Fn = (1 << 0),
+    ODROID_KEYBOARD_LED_Fn = (1 << 0),
     ODORID_KEYBOARD_LED_Aa = (1 << 1)
 } odroid_keyboard_led_t;
 

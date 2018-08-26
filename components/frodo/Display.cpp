@@ -86,6 +86,7 @@ extern "C"
 #include "../odroid/odroid_display.h"
 #include "../odroid/odroid_keyboard.h"
 #include "../odroid/odroid_input.h"
+#include "../odroid/odroid_audio.h"
 }
 
 //#include <SDL.h>
@@ -344,65 +345,6 @@ void C64Display::Update(void)
 		renderFrames = 0;
 		startTime = stopTime;
 	}
-
-#if 0
-	quit_requested = !X11Window_ProcessMessages(x11Window);
-
-	const int FB_SIZE = DISPLAY_X * DISPLAY_Y;
-	uint16_t temp[FB_SIZE];
-	for(int i = 0; i < FB_SIZE; ++i)
-	{
-		uint8 idx = framebuffer[i];
-
-		// uint8 r = palette_red[idx];
-		// uint8 g = palette_green[idx];
-		// uint8 b = palette_blue[idx];
-
-		// //rrrr rggg gggb bbbb
-        // uint16_t rgb565 = ((r << 8) & 0xf800) | ((g << 3) & 0x07e0) | (b >> 3);
-        // temp[i] = rgb565;
-
-		temp[i] = display_palette16[idx];
-	}
-
-	glTexImage2D(/*GLenum target*/ GL_TEXTURE_2D,
-		/*GLint level*/ 0,
-		/*GLint internalformat*/ GL_RGB,
-		/*GLsizei width*/ DISPLAY_X,
-		/*GLsizei height*/ DISPLAY_Y,
-		/*GLint border*/ 0,
-		/*GLenum format*/ GL_RGB,
-		/*GLenum type*/ GL_UNSIGNED_SHORT_5_6_5,
-		/*const GLvoid * data*/ temp);
-	GL_CheckError();
-
-	float u = 1.0f;
-	float v = 1.0f;
-
-	Matrix4 matrix = Matrix4_CreateScale(0.75f, 1, 1);
-	Blit_Draw(blit, &matrix, u, v);
-
-
-	X11Window_SwapBuffers(x11Window);
-
-	
-	++totalFrames;
-
-
-	// Measure FPS
-	totalElapsed += Stopwatch_Elapsed();
-
-	if (totalElapsed >= 1.0)
-	{
-		int fps = (int)(totalFrames / totalElapsed);
-		fprintf(stderr, "FPS: %i\n", fps);
-
-		totalFrames = 0;
-		totalElapsed = 0;
-	}
-
-	Stopwatch_Reset();
-#endif
 }
 
 
@@ -490,6 +432,8 @@ int C64Display::BitmapXMod(void)
 }
 
 
+bool func_flag = false;
+
 /*
  *  Poll the keyboard
  */
@@ -527,14 +471,30 @@ static void translate_key(int key, bool key_up, uint8 *key_matrix, uint8 *rev_ma
 		case ODROID_KEY_Z: c64_key = MATRIX(1,4); break;
 
 		case ODROID_KEY_0: c64_key = MATRIX(4,3); break;
-		case ODROID_KEY_1: c64_key = MATRIX(7,0); break;
-		case ODROID_KEY_2: c64_key = MATRIX(7,3); break;
-		case ODROID_KEY_3: c64_key = MATRIX(1,0); break;
-		case ODROID_KEY_4: c64_key = MATRIX(1,3); break;
-		case ODROID_KEY_5: c64_key = MATRIX(2,0); break;
-		case ODROID_KEY_6: c64_key = MATRIX(2,3); break;
-		case ODROID_KEY_7: c64_key = MATRIX(3,0); break;
-		case ODROID_KEY_8: c64_key = MATRIX(3,3); break;
+		case ODROID_KEY_1: 
+			c64_key = func_flag ? MATRIX(0,4) : MATRIX(7,0); 
+			break;
+		case ODROID_KEY_2: 
+			c64_key = func_flag ? MATRIX(0,4) | 0x80 : MATRIX(7,3); 
+			break;
+		case ODROID_KEY_3: 
+			c64_key = func_flag ? MATRIX(0,5) : MATRIX(1,0); 
+			break;
+		case ODROID_KEY_4:
+			c64_key = func_flag ? MATRIX(0,5) | 0x80 : MATRIX(1,3); 
+			break;
+		case ODROID_KEY_5:
+			c64_key = func_flag ? MATRIX(0,6) : MATRIX(2,0);
+			break;
+		case ODROID_KEY_6:
+			c64_key = func_flag ? MATRIX(0,6) | 0x80 : MATRIX(2,3);
+			break;
+		case ODROID_KEY_7:
+			c64_key = func_flag ? MATRIX(0,3) : MATRIX(3,0);
+			break;
+		case ODROID_KEY_8: 
+			c64_key = func_flag ? MATRIX(0,3) | 0x80 : MATRIX(3,3); 
+			break;
 		case ODROID_KEY_9: c64_key = MATRIX(4,0); break;
 
 		case ODROID_KEY_SPACE: c64_key = MATRIX(7,4); break;
@@ -633,8 +593,31 @@ static void translate_key(int key, bool key_up, uint8 *key_matrix, uint8 *rev_ma
 }
 
 
+
+odroid_gamepad_state prev_gamepad;
 void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joystick)
 {
+	odroid_gamepad_state gamepad;
+	odroid_input_gamepad_read(&gamepad);
+
+	if (prev_gamepad.values[ODROID_INPUT_SELECT] &&
+		!gamepad.values[ODROID_INPUT_SELECT])
+	{
+		func_flag = !func_flag;
+		
+		odroid_keyboard_leds_set(func_flag ? ODROID_KEYBOARD_LED_Fn : ODROID_KEYBOARD_LED_NONE);
+	}
+
+	if (!prev_gamepad.values[ODROID_INPUT_VOLUME] &&
+		gamepad.values[ODROID_INPUT_VOLUME])
+	{
+		odroid_audio_volume_change();
+		printf("%s: Volume=%d\n", __func__, odroid_audio_volume_get());
+	}
+
+	prev_gamepad = gamepad;
+
+
 	odroid_keyboard_event_t event;
 
 	while(true)
