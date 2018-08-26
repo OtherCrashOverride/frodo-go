@@ -595,6 +595,8 @@ static void translate_key(int key, bool key_up, uint8 *key_matrix, uint8 *rev_ma
 
 
 odroid_gamepad_state prev_gamepad;
+int activeLEDs = 0;
+
 void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joystick)
 {
 	odroid_gamepad_state gamepad;
@@ -605,7 +607,7 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 	{
 		func_flag = !func_flag;
 		
-		odroid_keyboard_leds_set(func_flag ? ODROID_KEYBOARD_LED_Fn : ODROID_KEYBOARD_LED_NONE);
+		
 	}
 
 	if (!prev_gamepad.values[ODROID_INPUT_VOLUME] &&
@@ -616,6 +618,21 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 	}
 
 	prev_gamepad = gamepad;
+
+
+	int leds = func_flag ? 1 : 0;
+	leds |= (led_state[0] && frameCount < 25) ? 2 : 0;
+
+	if (activeLEDs != leds)
+	{
+		int value = ODROID_KEYBOARD_LED_NONE;
+		if (leds & 1) value |= ODROID_KEYBOARD_LED_Fn;
+		if (leds & 2) value |= ODORID_KEYBOARD_LED_Aa;
+
+		odroid_keyboard_leds_set((odroid_keyboard_led_t)value);
+
+		activeLEDs = leds;
+	}
 
 
 	odroid_keyboard_event_t event;
