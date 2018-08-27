@@ -202,6 +202,12 @@ void odroid_audio_submit(short* stereoAudioBuffer, int frameCount)
     }
 }
 
+void odroid_audio_submit_zero()
+{
+    esp_err_t err = i2s_zero_dma_buffer(I2S_NUM);
+    if (err != ESP_OK) abort();
+}
+
 int odroid_audio_sample_rate_get()
 {
     return audio_sample_rate;

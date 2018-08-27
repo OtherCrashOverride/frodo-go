@@ -1,4 +1,21 @@
-#if 0
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <esp_attr.h>
+#include <esp_heap_caps.h>
+
+#include <string.h>
+#include <dirent.h>
+#include <string.h>
+#include <ctype.h>
+
+extern "C"
+{
+#include "../components/ugui/ugui.h"
+#include "../components/odroid/odroid_display.h"
+#include "../components/odroid/odroid_input.h"
+}
+
+
 UG_GUI gui;
 uint16_t* fb;
 
@@ -115,7 +132,7 @@ static void SortFiles(char** files, int count)
     }
 }
 
-int GetFiles(const char* path, const char* extension, char*** filesOut)
+static int GetFiles(const char* path, const char* extension, char*** filesOut)
 {
     //printf("GetFiles: path='%s', extension='%s'\n", path, extension);
     //OpenSDCard();
@@ -218,7 +235,7 @@ int GetFiles(const char* path, const char* extension, char*** filesOut)
     return count;
 }
 
-void FreeFiles(char** files, int count)
+static void FreeFiles(char** files, int count)
 {
     for (int i = 0; i < count; ++i)
     {
@@ -242,7 +259,7 @@ UG_OBJECT objbuffwnd1[MAX_OBJECTS];
 
 
 
-void DrawPage(char** files, int fileCount, int currentItem)
+static void DrawPage(char** files, int fileCount, int currentItem)
 {
     static const size_t MAX_DISPLAY_LENGTH = 38;
 
@@ -317,7 +334,7 @@ void DrawPage(char** files, int fileCount, int currentItem)
 
 }
 
-static const char* ChooseFile()
+const char* ui_choosefile()
 {
     const char* result = NULL;
 
@@ -355,10 +372,10 @@ static const char* ChooseFile()
     UpdateDisplay();
 
 
-    const char* path = "/sd/roms/a78";
+    const char* path = "/sd/roms/c64";
     char** files;
 
-    int fileCount =  GetFiles(path, ".a78", &files);
+    int fileCount =  GetFiles(path, ".d64", &files);
 
 
 // Selection
@@ -462,6 +479,11 @@ static const char* ChooseFile()
 	            result = fullPath;
                 break;
 	        }
+            else if(!previousState.values[ODROID_INPUT_B] && state.values[ODROID_INPUT_B])
+	        {
+                result = NULL;
+                break;
+            }
 		}
 
         previousState = state;
@@ -470,7 +492,6 @@ static const char* ChooseFile()
 
     FreeFiles(files, fileCount);
 
-    //free(fb);
+    free(fb);
     return result;
 }
-#endif

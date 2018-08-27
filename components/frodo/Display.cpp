@@ -147,19 +147,17 @@ void videoTask(void *arg)
         //ili9341_write_frame_rectangleLE(0, 0, 320, 240, (uint16_t*)framebuffer);
 
         //memcpy(framebuffer, param, sizeof(framebuffer));
-        
+        ili9341_write_frame_c64(framebuffer, display_palette16);
 
         xQueueReceive(vidQueue, &param, portMAX_DELAY);
-		ili9341_write_frame_c64(framebuffer, display_palette16);
-
     }
 
-    odroid_display_lock_sms_display();
+    odroid_display_lock();
 
     // Draw hourglass
     odroid_display_show_hourglass();
 
-    odroid_display_unlock_sms_display();
+    odroid_display_unlock();
 
     vTaskDelete(NULL);
 

@@ -18,12 +18,19 @@
 #include "Display.h"
 #include "Prefs.h"
 
-#if defined(__unix) && !defined(__svgalib__)
-#include "CmdPipe.h"
-#endif
 
 #include <esp_heap_caps.h>
 #include <esp_system.h>
+
+extern "C"
+{
+#include "../odroid/odroid_input.h"
+#include "../odroid/odroid_display.h"
+#include "../odroid/odroid_audio.h"
+}
+
+#include "../../main/ui.h"
+
 
 
 #ifdef FRODO_SC
@@ -1118,6 +1125,39 @@ void C64::thread_func(void)
 						default:
 							break;
 					}
+				}
+			}
+		}
+#else
+		if (linecnt & 0xfff)
+		{
+			odroid_gamepad_state gamepad;
+			odroid_input_gamepad_read(&gamepad);
+
+			if (gamepad.values[ODROID_INPUT_MENU])
+			{
+				// Wait for LCD to finish
+				odroid_display_lock();
+				odroid_display_unlock();
+
+				// Silence audio
+				odroid_audio_submit_zero();
+
+				// Display menu
+				const char* filename = ui_choosefile();
+				if (filename)
+				{
+					Prefs *np = new Prefs();
+					
+					np->DriveType[0] = DRVTYPE_D64;
+    				strcpy(np->DrivePath[0], filename);
+
+					NewPrefs(np);
+					ThePrefs = *np;
+					
+					delete np;
+					
+					free((void*)filename);
 				}
 			}
 		}

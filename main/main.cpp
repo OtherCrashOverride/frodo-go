@@ -144,8 +144,8 @@ extern "C" void app_main()
     //ThePrefs.Load(prefs_path);
 
     //ThePrefs.Emul1541Proc = true;
-    ThePrefs.DriveType[0] = DRVTYPE_D64;
-    strcpy(ThePrefs.DrivePath[0], "/sd/roms/c64/LodeRunner.D64");
+    //ThePrefs.DriveType[0] = DRVTYPE_D64;
+    //strcpy(ThePrefs.DrivePath[0], ".");
 
 	// Create and start C64
 	TheC64 = new C64;
