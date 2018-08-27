@@ -436,7 +436,7 @@ DigitalRenderer::DigitalRenderer()
     sampleBuffer = (int16*)malloc(sndbufsize * sizeof(short) * SOUND_CHANNEL_COUNT);
     if (!sampleBuffer) abort();
 
-    //printf("%s: sndbufsize=%d\n", __func__, sndbufsize);
+    printf("%s: sndbufsize=%d\n", __func__, sndbufsize);
     #endif
 }
 
@@ -936,6 +936,8 @@ DigitalRenderer::~DigitalRenderer()
 #if 1
     odroid_audio_terminate();
 #endif
+
+	printf("%s\n", __func__);
 }
 
 

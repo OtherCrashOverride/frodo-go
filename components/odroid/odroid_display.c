@@ -1683,10 +1683,35 @@ void ili9341_write_frame_atari7800(uint8_t* buffer, uint16_t* palette)
     send_continue_wait();
 }
 
+SemaphoreHandle_t display_mutex = NULL;
+
+void odroid_display_lock()
+{
+    if (!display_mutex)
+    {
+        display_mutex = xSemaphoreCreateMutex();
+        if (!display_mutex) abort();
+    }
+
+    if (xSemaphoreTake(display_mutex, 1000 / portTICK_RATE_MS) != pdTRUE)
+    {
+        abort();
+    }
+}
+
+void odroid_display_unlock()
+{
+    if (!display_mutex) abort();
+
+    xSemaphoreGive(display_mutex);
+}
+
 void ili9341_write_frame_c64(uint8_t* buffer, uint16_t* palette)
 {
     const int DISPLAY_X = 0x180;
     const int DISPLAY_Y = 0x110;
+
+    odroid_display_lock();
 
     if (buffer == NULL)
     {
@@ -1735,4 +1760,6 @@ void ili9341_write_frame_c64(uint8_t* buffer, uint16_t* palette)
     }
 
     send_continue_wait();
+
+    odroid_display_unlock();
 }

@@ -89,20 +89,13 @@ extern "C"
 #include "../odroid/odroid_audio.h"
 }
 
-//#include <SDL.h>
-//#include "odroid.h"
-//#include "odroid_keyboard.h"
 
 
 // Display surface
-//static SDL_Surface *screen = NULL;
 uint8* framebuffer = NULL;
-//X11Window* x11Window;
-//Blit* blit;
 uint16_t display_palette16[16];
-//int totalFrames = 0;
-//double totalElapsed = 0.0;
 QueueHandle_t vidQueue;
+
 
 // Keyboard
 static bool num_locked = false;
@@ -301,8 +294,12 @@ void C64Display::Update(void)
 #else
 		//ili9341_write_frame_c64(framebuffer, display_palette16);
 
+#if 1
 		uint8_t* fb = framebuffer;
 		xQueueSend(vidQueue, &fb, portMAX_DELAY);
+#else
+		ili9341_write_frame_c64(framebuffer, display_palette16);
+#endif
 
 		++renderFrames;
 #endif
@@ -821,23 +818,6 @@ bool C64Display::NumLock(void)
 
 void C64Display::InitColors(uint8 *colors)
 {
-#if 0
-	SDL_Color palette[PALETTE_SIZE];
-	for (int i=0; i<16; i++) {
-		palette[i].r = palette_red[i];
-		palette[i].g = palette_green[i];
-		palette[i].b = palette_blue[i];
-	}
-	palette[fill_gray].r = palette[fill_gray].g = palette[fill_gray].b = 0xd0;
-	palette[shine_gray].r = palette[shine_gray].g = palette[shine_gray].b = 0xf0;
-	palette[shadow_gray].r = palette[shadow_gray].g = palette[shadow_gray].b = 0x80;
-	palette[red].r = 0xf0;
-	palette[red].g = palette[red].b = 0;
-	palette[green].g = 0xf0;
-	palette[green].r = palette[green].b = 0;
-	SDL_SetColors(screen, palette, 0, PALETTE_SIZE);
-#else
-
 	for(int i = 0; i < 16; ++i)
 	{
 		uint8 r = palette_red[i];
@@ -849,11 +829,8 @@ void C64Display::InitColors(uint8 *colors)
         display_palette16[i] = rgb565;
 	}
 
-#endif
-
 	for (int i=0; i<256; i++)
 		colors[i] = i & 0x0f;
-
 }
 
 

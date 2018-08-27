@@ -145,7 +145,7 @@ extern "C" void app_main()
 
     //ThePrefs.Emul1541Proc = true;
     ThePrefs.DriveType[0] = DRVTYPE_D64;
-    strcpy(ThePrefs.DrivePath[0], "/sd/roms/c64/Zaxxon.D64");
+    strcpy(ThePrefs.DrivePath[0], "/sd/roms/c64/ULTIMA4A.D64");
 
 	// Create and start C64
 	TheC64 = new C64;
