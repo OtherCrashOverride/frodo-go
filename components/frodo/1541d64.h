@@ -80,6 +80,7 @@ private:
 	bool read_sector(int track, int sector, uint8 *buffer);
 	int offset_from_ts(int track, int sector);
 	uint8 conv_from_64(uint8 c, bool map_slash);
+	void open_close_d64_file_internal(char *d64name);
 
 	char orig_d64_name[256]; // Original path of .d64 file
 

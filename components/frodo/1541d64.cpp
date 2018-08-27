@@ -19,6 +19,11 @@
 #include "IEC.h"
 #include "Prefs.h"
 
+extern "C"
+{
+#include "../odroid/odroid_display.h"
+}
+
 
 // Channel modes (IRC users listen up :-)
 enum {
@@ -96,7 +101,7 @@ D64Drive::~D64Drive()
  *  Open/close the .d64 file
  */
 
-void D64Drive::open_close_d64_file(char *d64name)
+void D64Drive::open_close_d64_file_internal(char *d64name)
 {
 	long size;
 	uint8 magic[4];
@@ -140,6 +145,14 @@ void D64Drive::open_close_d64_file(char *d64name)
 	}
 }
 
+void D64Drive::open_close_d64_file(char *d64name)
+{
+	odroid_display_lock();
+
+	open_close_d64_file_internal(d64name);
+
+	odroid_display_unlock();
+}
 
 /*
  *  Open channel
@@ -968,6 +981,8 @@ bool D64Drive::read_sector(int track, int sector, uint8 *buffer)
 		return false;
 	}
 
+	odroid_display_lock();
+
 #ifdef AMIGA
 	if (offset != ftell(the_file))
 		fseek(the_file, offset + image_header, SEEK_SET);
@@ -975,6 +990,9 @@ bool D64Drive::read_sector(int track, int sector, uint8 *buffer)
 	fseek(the_file, offset + image_header, SEEK_SET);
 #endif
 	fread(buffer, 256, 1, the_file);
+
+	odroid_display_unlock();
+	
 	return true;
 }
 
