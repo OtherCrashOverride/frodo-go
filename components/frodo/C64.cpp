@@ -1148,6 +1148,7 @@ void C64::thread_func(void)
 				if (filename)
 				{
 					Prefs *np = new Prefs();
+					*np = ThePrefs;
 					
 					np->DriveType[0] = DRVTYPE_D64;
     				strcpy(np->DrivePath[0], filename);

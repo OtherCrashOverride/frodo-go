@@ -686,10 +686,15 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 					// 	TheC64->NMI();
 					// 	break;
 
-					// case OdroidKey_F12:	// F12: Reset
-					// 	TheC64->Reset();
-					// 	break;
-					
+					case ODROID_KEY_BACKSPACE:	// F12: Reset
+						if (func_flag)
+						{
+							TheC64->Reset();
+							func_flag = false;
+							break;
+						}
+						// fall through
+
 					default:
 						translate_key(event.key, false, key_matrix, rev_matrix, joystick);
 						break;
