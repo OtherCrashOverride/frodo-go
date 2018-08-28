@@ -640,9 +640,28 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 
 	prev_gamepad = gamepad;
 
+/*
+	LED_OFF,		// LED off
+	LED_ON,			// LED on (green)
+	LED_ERROR_ON,	// LED blinking (red), currently on
+	LED_ERROR_OFF	// LED blinking, currently off
+*/
 
 	int leds = func_flag ? 1 : 0;
-	leds |= (led_state[0] && frameCount < 25) ? 2 : 0;
+	//leds |= (led_state[0] && frameCount < 25) ? 2 : 0;
+
+	switch(led_state[0])
+	{
+		case LED_OFF:
+		case LED_ERROR_OFF:
+			break;
+
+		case LED_ON:
+		case LED_ERROR_ON:
+			leds |= 2;
+			break;
+	}
+	
 
 	if (activeLEDs != leds)
 	{
