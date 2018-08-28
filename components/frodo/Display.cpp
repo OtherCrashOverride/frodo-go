@@ -436,7 +436,17 @@ enum VKEY
 	VKEY_UP_ARROW = 0x100,
 	VKEY_DOWN_ARROW,
 	VKEY_LEFT_ARROW,
-	VKEY_RIGHT_ARROW
+	VKEY_RIGHT_ARROW,
+
+	VKEY_F1,
+	VKEY_F2,
+	VKEY_F3,
+	VKEY_F4,
+	VKEY_F5,
+	VKEY_F6,
+	VKEY_F7,
+	VKEY_F8,
+
 };
 
 
@@ -537,14 +547,14 @@ static void translate_key(int key, bool key_up, uint8 *key_matrix, uint8 *rev_ma
 		case VKEY_LEFT_ARROW: c64_key = MATRIX(0,2) | 0x80; break;
 		case VKEY_RIGHT_ARROW: c64_key = MATRIX(0,2); break;
 
-		//case ODROID_KEY_F1: c64_key = MATRIX(0,4); break;
-		//case ODROID_KEY_F2: c64_key = MATRIX(0,4) | 0x80; break;
-		//case ODROID_KEY_F3: c64_key = MATRIX(0,5); break;
-		//case ODROID_KEY_F4: c64_key = MATRIX(0,5) | 0x80; break;
-		//case ODROID_KEY_F5: c64_key = MATRIX(0,6); break;
-		//case ODROID_KEY_F6: c64_key = MATRIX(0,6) | 0x80; break;
-		//case ODROID_KEY_F7: c64_key = MATRIX(0,3); break;
-		//case ODROID_KEY_F8: c64_key = MATRIX(0,3) | 0x80; break;
+		case VKEY_F1: c64_key = MATRIX(0,4); break;
+		case VKEY_F2: c64_key = MATRIX(0,4) | 0x80; break;
+		case VKEY_F3: c64_key = MATRIX(0,5); break;
+		case VKEY_F4: c64_key = MATRIX(0,5) | 0x80; break;
+		case VKEY_F5: c64_key = MATRIX(0,6); break;
+		case VKEY_F6: c64_key = MATRIX(0,6) | 0x80; break;
+		case VKEY_F7: c64_key = MATRIX(0,3); break;
+		case VKEY_F8: c64_key = MATRIX(0,3) | 0x80; break;
 
 		// case OdroidKey_KP0: case OdroidKey_KP5: c64_key = 0x10 | 0x40; break;
 		// case OdroidKey_KP1: c64_key = 0x06 | 0x40; break;
@@ -670,12 +680,12 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 		if (!prev_gamepad.values[ODROID_INPUT_B] &&
 				gamepad.values[ODROID_INPUT_B])
 		{
-			keyboard_callback(ODROID_KEY_PRESSED, ODROID_KEY_ENTER);
+			keyboard_callback(ODROID_KEY_PRESSED, (odroid_key_t)VKEY_F1);
 		}
 		else if (prev_gamepad.values[ODROID_INPUT_B] &&
 				!gamepad.values[ODROID_INPUT_B])
 		{
-			keyboard_callback(ODROID_KEY_RELEASED, ODROID_KEY_ENTER);
+			keyboard_callback(ODROID_KEY_RELEASED, (odroid_key_t)VKEY_F1);
 		}
 	}
 	else
