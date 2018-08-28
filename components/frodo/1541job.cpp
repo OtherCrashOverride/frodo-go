@@ -31,6 +31,11 @@
 
 #include <esp_heap_caps.h>
 
+extern "C"
+{
+#include "../odroid/odroid_display.h"
+}
+
 // Number of tracks/sectors
 const int NUM_TRACKS = 35;
 const int NUM_SECTORS = 683;
@@ -123,7 +128,7 @@ void Job1541::NewPrefs(Prefs *prefs)
  *  Open .d64 file
  */
 
-void Job1541::open_d64_file(char *filepath)
+void Job1541::open_d64_file_internal(char *filepath)
 {
 	long size;
 	uint8 magic[4];
@@ -176,6 +181,14 @@ void Job1541::open_d64_file(char *filepath)
 	}
 }
 
+void Job1541::open_d64_file(char *filepath)
+{
+	// Wait for LCD completion
+	odroid_display_lock();
+	odroid_display_unlock();
+
+	open_d64_file_internal(filepath);
+}
 
 /*
  *  Close .d64 file
@@ -183,10 +196,14 @@ void Job1541::open_d64_file(char *filepath)
 
 void Job1541::close_d64_file(void)
 {
+	odroid_display_lock();
+
 	if (the_file != NULL) {
 		fclose(the_file);
 		the_file = NULL;
 	}
+
+	odroid_display_unlock();
 }
 
 
@@ -250,6 +267,8 @@ bool Job1541::read_sector(int track, int sector, uint8 *buffer)
 	if ((offset = offset_from_ts(track, sector)) < 0)
 		return false;
 
+	odroid_display_lock();
+
 #ifdef AMIGA
 	if (offset != ftell(the_file))
 		fseek(the_file, offset + image_header, SEEK_SET);
@@ -257,6 +276,9 @@ bool Job1541::read_sector(int track, int sector, uint8 *buffer)
 	fseek(the_file, offset + image_header, SEEK_SET);
 #endif
 	fread(buffer, 256, 1, the_file);
+
+	odroid_display_unlock();
+
 	return true;
 }
 
@@ -274,6 +296,8 @@ bool Job1541::write_sector(int track, int sector, uint8 *buffer)
 	if ((offset = offset_from_ts(track, sector)) < 0)
 		return false;
 
+	odroid_display_lock();
+
 #ifdef AMIGA
 	if (offset != ftell(the_file))
 		fseek(the_file, offset + image_header, SEEK_SET);
@@ -281,6 +305,9 @@ bool Job1541::write_sector(int track, int sector, uint8 *buffer)
 	fseek(the_file, offset + image_header, SEEK_SET);
 #endif
 	fwrite(buffer, 256, 1, the_file);
+
+	odroid_display_unlock();
+
 	return true;
 }
 

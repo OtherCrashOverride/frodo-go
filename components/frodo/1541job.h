@@ -29,6 +29,7 @@ public:
 	void FormatTrack(void);
 
 private:
+	void open_d64_file_internal(char *filepath);
 	void open_d64_file(char *filepath);
 	void close_d64_file(void);
 	bool read_sector(int track, int sector, uint8 *buffer);

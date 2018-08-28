@@ -429,6 +429,16 @@ int C64Display::BitmapXMod(void)
 
 
 bool func_flag = false;
+bool gamepad_disabled = false;
+
+enum VKEY
+{
+	VKEY_UP_ARROW = 0x100,
+	VKEY_DOWN_ARROW,
+	VKEY_LEFT_ARROW,
+	VKEY_RIGHT_ARROW
+};
+
 
 /*
  *  Poll the keyboard
@@ -522,10 +532,10 @@ static void translate_key(int key, bool key_up, uint8 *key_matrix, uint8 *rev_ma
 		case ODROID_KEY_ALTERNATE: /*case ODROID_KEY_LMETA:*/ c64_key = MATRIX(7,5); break;
 		//case ODROID_KEY_RightAlt: /*case ODROID_KEY_RMETA:*/ c64_key = MATRIX(7,5); break;
 
-		//case ODROID_KEY_UpArrow: c64_key = MATRIX(0,7)| 0x80; break;
-		//case ODROID_KEY_DownArrow: c64_key = MATRIX(0,7); break;
-		//case ODROID_KEY_LeftArrow: c64_key = MATRIX(0,2) | 0x80; break;
-		//case ODROID_KEY_RightArrow: c64_key = MATRIX(0,2); break;
+		case VKEY_UP_ARROW: c64_key = MATRIX(0,7)| 0x80; break;
+		case VKEY_DOWN_ARROW: c64_key = MATRIX(0,7); break;
+		case VKEY_LEFT_ARROW: c64_key = MATRIX(0,2) | 0x80; break;
+		case VKEY_RIGHT_ARROW: c64_key = MATRIX(0,2); break;
 
 		//case ODROID_KEY_F1: c64_key = MATRIX(0,4); break;
 		//case ODROID_KEY_F2: c64_key = MATRIX(0,4) | 0x80; break;
@@ -598,37 +608,115 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 	odroid_gamepad_state gamepad;
 	odroid_input_gamepad_read(&gamepad);
 
+	if (gamepad_disabled)
+	{
+		*joystick = 0xff;
 
-	if (gamepad.values[ODROID_INPUT_UP])
-		*joystick &= ~0x01;
+		if (!prev_gamepad.values[ODROID_INPUT_UP] &&
+				gamepad.values[ODROID_INPUT_UP])
+		{
+			keyboard_callback(ODROID_KEY_PRESSED, (odroid_key_t)VKEY_UP_ARROW);
+		}
+		else if (prev_gamepad.values[ODROID_INPUT_UP] &&
+				!gamepad.values[ODROID_INPUT_UP])
+		{
+			keyboard_callback(ODROID_KEY_RELEASED, (odroid_key_t)VKEY_UP_ARROW);
+		}
+		
+		if (!prev_gamepad.values[ODROID_INPUT_DOWN] &&
+				gamepad.values[ODROID_INPUT_DOWN])
+		{
+			keyboard_callback(ODROID_KEY_PRESSED, (odroid_key_t)VKEY_DOWN_ARROW);
+		}
+		else if (prev_gamepad.values[ODROID_INPUT_DOWN] &&
+				!gamepad.values[ODROID_INPUT_DOWN])
+		{
+			keyboard_callback(ODROID_KEY_RELEASED, (odroid_key_t)VKEY_DOWN_ARROW);
+		}
+
+		if (!prev_gamepad.values[ODROID_INPUT_LEFT] &&
+				gamepad.values[ODROID_INPUT_LEFT])
+		{
+			keyboard_callback(ODROID_KEY_PRESSED, (odroid_key_t)VKEY_LEFT_ARROW);
+		}
+		else if (prev_gamepad.values[ODROID_INPUT_LEFT] &&
+				!gamepad.values[ODROID_INPUT_LEFT])
+		{
+			keyboard_callback(ODROID_KEY_RELEASED, (odroid_key_t)VKEY_LEFT_ARROW);
+		}
+
+		if (!prev_gamepad.values[ODROID_INPUT_RIGHT] &&
+				gamepad.values[ODROID_INPUT_RIGHT])
+		{
+			keyboard_callback(ODROID_KEY_PRESSED, (odroid_key_t)VKEY_RIGHT_ARROW);
+		}
+		else if (prev_gamepad.values[ODROID_INPUT_RIGHT] &&
+				!gamepad.values[ODROID_INPUT_RIGHT])
+		{
+			keyboard_callback(ODROID_KEY_RELEASED, (odroid_key_t)VKEY_RIGHT_ARROW);
+		}
+
+		if (!prev_gamepad.values[ODROID_INPUT_A] &&
+				gamepad.values[ODROID_INPUT_A])
+		{
+			keyboard_callback(ODROID_KEY_PRESSED, ODROID_KEY_SPACE);
+		}
+		else if (prev_gamepad.values[ODROID_INPUT_A] &&
+				!gamepad.values[ODROID_INPUT_A])
+		{
+			keyboard_callback(ODROID_KEY_RELEASED, ODROID_KEY_SPACE);
+		}
+
+		if (!prev_gamepad.values[ODROID_INPUT_B] &&
+				gamepad.values[ODROID_INPUT_B])
+		{
+			keyboard_callback(ODROID_KEY_PRESSED, ODROID_KEY_ENTER);
+		}
+		else if (prev_gamepad.values[ODROID_INPUT_B] &&
+				!gamepad.values[ODROID_INPUT_B])
+		{
+			keyboard_callback(ODROID_KEY_RELEASED, ODROID_KEY_ENTER);
+		}
+	}
 	else
-		*joystick |= 0x01;
+	{
+		if (gamepad.values[ODROID_INPUT_UP])
+			*joystick &= ~0x01;
+		else
+			*joystick |= 0x01;
 
-	if (gamepad.values[ODROID_INPUT_DOWN])
-		*joystick &= ~0x02;
-	else
-		*joystick |= 0x02;
+		if (gamepad.values[ODROID_INPUT_DOWN])
+			*joystick &= ~0x02;
+		else
+			*joystick |= 0x02;
 
-	if (gamepad.values[ODROID_INPUT_LEFT])
-		*joystick &= ~0x04;
-	else
-		*joystick |= 0x04;
+		if (gamepad.values[ODROID_INPUT_LEFT])
+			*joystick &= ~0x04;
+		else
+			*joystick |= 0x04;
 
-	if (gamepad.values[ODROID_INPUT_RIGHT])
-		*joystick &= ~0x08;
-	else
-		*joystick |= 0x08;
+		if (gamepad.values[ODROID_INPUT_RIGHT])
+			*joystick &= ~0x08;
+		else
+			*joystick |= 0x08;
 
-	if (gamepad.values[ODROID_INPUT_A])
-		*joystick &= ~0x10;
-	else
-		*joystick |= 0x10; 
-
+		if (gamepad.values[ODROID_INPUT_A])
+			*joystick &= ~0x10;
+		else
+			*joystick |= 0x10; 
+	}
 
 	if (prev_gamepad.values[ODROID_INPUT_SELECT] &&
 		!gamepad.values[ODROID_INPUT_SELECT])
 	{
 		func_flag = !func_flag;				
+	}
+
+	if (prev_gamepad.values[ODROID_INPUT_START] &&
+		!gamepad.values[ODROID_INPUT_START])
+	{
+		gamepad_disabled = !gamepad_disabled;		
+		printf("%s: gamepad_disabled=%d\n", __func__, gamepad_disabled);		
 	}
 
 	if (!prev_gamepad.values[ODROID_INPUT_VOLUME] &&
