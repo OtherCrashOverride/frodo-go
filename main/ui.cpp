@@ -261,7 +261,7 @@ UG_OBJECT objbuffwnd1[MAX_OBJECTS];
 
 static void DrawPage(char** files, int fileCount, int currentItem)
 {
-    static const size_t MAX_DISPLAY_LENGTH = 38;
+    static const size_t MAX_DISPLAY_LENGTH = 62; //38;
 
     int page = currentItem / ITEM_COUNT;
     page *= ITEM_COUNT;
@@ -362,7 +362,7 @@ const char* ui_choosefile(const char* path, const char* current)
         uint16_t id = TXB_ID_0 + i;
         UG_S16 top = i * textHeight;
         UG_TextboxCreate(&window1, &textbox[i], id, 0, top, innerWidth, top + textHeight - 1);
-        UG_TextboxSetFont(&window1, id, &FONT_8X12);
+        UG_TextboxSetFont(&window1, id, &FONT_5X12);
         UG_TextboxSetForeColor(&window1, id, C_BLACK);
         UG_TextboxSetAlignment(&window1, id, ALIGN_CENTER);
         //UG_TextboxSetText(&window1, id, "ABCDEFGHabcdefg");
