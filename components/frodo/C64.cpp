@@ -1144,12 +1144,15 @@ void C64::thread_func(void)
 				odroid_audio_submit_zero();
 
 				// Display menu
-				const char* filename = ui_choosefile();
+				//printf("%s: ThePrefs.DrivePath[0]='%s'\n", __func__, ThePrefs.DrivePath[0]);
+
+				const char* path = "/sd/roms/c64";
+				const char* filename = ui_choosefile(path, ThePrefs.DrivePath[0]);
 				if (filename)
 				{
 					Prefs *np = new Prefs();
 					*np = ThePrefs;
-					
+
 					np->DriveType[0] = DRVTYPE_D64;
     				strcpy(np->DrivePath[0], filename);
 

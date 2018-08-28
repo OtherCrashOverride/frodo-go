@@ -334,7 +334,7 @@ static void DrawPage(char** files, int fileCount, int currentItem)
 
 }
 
-const char* ui_choosefile()
+const char* ui_choosefile(const char* path, const char* current)
 {
     const char* result = NULL;
 
@@ -372,14 +372,43 @@ const char* ui_choosefile()
     UpdateDisplay();
 
 
-    const char* path = "/sd/roms/c64";
+    //const char* path = "/sd/roms/c64";
     char** files;
 
     int fileCount =  GetFiles(path, ".d64", &files);
 
 
-// Selection
+    // Selection
     int currentItem = 0;
+
+    if (current && (strlen(current) > strlen(path)))
+	{
+		const char* filename = current + strlen(current);
+        while (filename > current)
+        {
+            if (*filename == '/')
+            {
+                filename++;
+                break;
+            }
+
+            --filename;
+        }
+
+		printf("%s: searching for '%s'\n", __func__, filename);
+
+		// find the current file
+		for (int i = 0; i < fileCount; ++i)
+		{
+			if (strcmp(files[i], filename) == 0)
+			{
+				printf("%s: found '%s' at %d\n", __func__, files[i], i);
+				currentItem = i;
+				break;
+			}
+		}
+	}
+
     DrawPage(files, fileCount, currentItem);
 
     odroid_gamepad_state previousState;
