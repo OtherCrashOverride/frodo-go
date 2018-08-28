@@ -803,7 +803,7 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 					// 	TheC64->NMI();
 					// 	break;
 
-					case ODROID_KEY_BACKSPACE:	// F12: Reset
+					case ODROID_KEY_0:	// F12: Reset
 						if (func_flag)
 						{
 							TheC64->Reset();
