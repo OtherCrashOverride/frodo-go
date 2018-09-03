@@ -409,6 +409,7 @@ static void backlight_init()
 
     // (duty range is 0 ~ ((2**bit_num)-1)
 
+    esp_err_t err;
 
     //configure timer0
     ledc_timer_config_t ledc_timer;
@@ -420,7 +421,8 @@ static void backlight_init()
     ledc_timer.timer_num = LEDC_TIMER_0;    //timer index
 
 
-    ledc_timer_config(&ledc_timer);
+    err = ledc_timer_config(&ledc_timer);
+    if (err != ESP_OK) abort();
 
 
     //set the configuration
@@ -442,15 +444,23 @@ static void backlight_init()
     ledc_channel.timer_sel = LEDC_TIMER_0;
 
 
-    ledc_channel_config(&ledc_channel);
+    err = ledc_channel_config(&ledc_channel);
+    if (err != ESP_OK) abort();
 
-
+#if 0
     //initialize fade service.
     ledc_fade_func_install(0);
 
     // duty range is 0 ~ ((2**bit_num)-1)
     ledc_set_fade_with_time(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, (LCD_BACKLIGHT_ON_VALUE) ? DUTY_MAX : 0, 500);
     ledc_fade_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, LEDC_FADE_NO_WAIT);
+#else
+    err = ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, DUTY_MAX);
+    if (err != ESP_OK) abort();
+
+    err = ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    if (err != ESP_OK) abort();
+#endif
 
     isBackLightIntialized = true;
 }
@@ -481,8 +491,18 @@ void backlight_percentage_set(int value)
     //
     // ledc_channel_config(&ledc_channel);
 
+#if 0
     ledc_set_fade_with_time(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty, 500);
     ledc_fade_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, LEDC_FADE_NO_WAIT);
+#else
+    esp_err_t err;
+
+    err = ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, DUTY_MAX);
+    if (err != ESP_OK) abort();
+
+    err = ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    if (err != ESP_OK) abort();
+#endif
 }
 #endif
 

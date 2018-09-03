@@ -222,10 +222,18 @@ static void odroid_input_task(void *arg)
             {
                 //backlight_percentage_set(BacklightLevels[BacklightLevel]);
 
-
+#if 0
                 ledc_set_fade_with_time(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty, 1);
                 ledc_fade_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, LEDC_FADE_WAIT_DONE /*LEDC_FADE_NO_WAIT*/);
+#else
+                esp_err_t err;
 
+                err = ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty);
+                if (err != ESP_OK) abort();
+
+                err = ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+                if (err != ESP_OK) abort();
+#endif
                 //ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty);
 
                 changed = false;
