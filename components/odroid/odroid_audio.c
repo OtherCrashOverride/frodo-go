@@ -151,42 +151,20 @@ void odroid_audio_submit(short* stereoAudioBuffer, int frameCount)
         }
         else
         {
+            dac1 = 0x8000;
+
             // Down mix stero to mono
             int32_t sample = stereoAudioBuffer[i];
             sample += stereoAudioBuffer[i + 1];
             sample >>= 1;
 
-            // Normalize
-            const float sn = (float)sample / 0x8000;
+            // Apply volume
+            sample *= Volume;
 
-            // Scale
-            const int magnitude = 127 + 127;
-            const float range = magnitude  * sn * Volume;
-
-            // Convert to differential output
-            if (range > 127)
-            {
-                dac1 = (range - 127);
-                dac0 = 127;
-            }
-            else if (range < -127)
-            {
-                dac1  = (range + 127);
-                dac0 = -127;
-            }
-            else
-            {
-                dac1 = 0;
-                dac0 = range;
-            }
-
-            dac0 += 0x80;
-            dac1 = 0x80 - dac1;
-
-            dac0 <<= 8;
-            dac1 <<= 8;
+            // Convert to unsigned
+            dac0 = sample + 0x8000;
         }
-
+                
         stereoAudioBuffer[i] = (int16_t)dac1;
         stereoAudioBuffer[i + 1] = (int16_t)dac0;
     }
