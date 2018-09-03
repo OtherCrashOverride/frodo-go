@@ -105,9 +105,9 @@ bool load_rom_files(void)
 
 extern "C" void app_main()
 {
-    printf("frodo-go started.\n");
+	printf("frodo-go started (%s|%s).\n", COMPILEDATE, GITREV);
 
-    printf("HEAP:0x%x (%#08x)\n", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
+    //printf("HEAP:0x%x (%#08x)\n", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
 
 
     nvs_flash_init();
