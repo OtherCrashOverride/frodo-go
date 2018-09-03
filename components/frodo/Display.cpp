@@ -87,6 +87,7 @@ extern "C"
 #include "../odroid/odroid_keyboard.h"
 #include "../odroid/odroid_input.h"
 #include "../odroid/odroid_audio.h"
+#include "../odroid/odroid_system.h"
 }
 
 
@@ -725,7 +726,9 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 	if (prev_gamepad.values[ODROID_INPUT_START] &&
 		!gamepad.values[ODROID_INPUT_START])
 	{
-		gamepad_disabled = !gamepad_disabled;		
+		gamepad_disabled = !gamepad_disabled;
+
+		odroid_system_led_set(gamepad_disabled);
 		printf("%s: gamepad_disabled=%d\n", __func__, gamepad_disabled);		
 	}
 
