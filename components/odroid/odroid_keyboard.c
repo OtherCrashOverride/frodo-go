@@ -132,7 +132,7 @@ static void i2c_init()
     conf.sda_io_num = KEYBOARD_I2C_SDA_IO;
     conf.scl_io_num = KEYBOARD_I2C_SCL_IO;
     conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
-    conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
+    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
     conf.master.clk_speed = KEYBOARD_I2C_FREQ_HZ;
     
     i2c_param_config(i2c_master_port, &conf);
