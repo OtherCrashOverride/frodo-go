@@ -353,7 +353,7 @@ static void odroid_keyboard_task()
             uint8_t key = scan & 0x7f;
             odroid_keystate_t isPressed = scan & 0x80 ? ODROID_KEY_PRESSED : ODROID_KEY_RELEASED;
 
-            //printf("%s: key=%#04x isPressed=%d\n", __func__, key, isPressed);
+            printf("%s: key=%#04x isPressed=%d\n", __func__, key, isPressed);
 
             if (!xSemaphoreTake(keyboard_state_mutex, portMAX_DELAY)) abort();
             odroid_keyboard_state_key_set(&keyboard_state, (odroid_key_t)key, isPressed);
@@ -428,6 +428,7 @@ odroid_keyboard_led_t odroid_keyboard_leds_get()
     if (!xSemaphoreTake(i2c_mutex, portMAX_DELAY)) abort();
 
     uint8_t result = read_byte(REG_GPIO_DAT_OUT3);
+    result |= (read_byte(REG_GPIO_DAT_OUT1) & 0x80) >> 5;
 
     xSemaphoreGive(i2c_mutex);
 
@@ -438,7 +439,8 @@ void odroid_keyboard_leds_set(odroid_keyboard_led_t value)
 {
     if (!xSemaphoreTake(i2c_mutex, portMAX_DELAY)) abort();
 
-    write_byte(REG_GPIO_DAT_OUT3, value);
+    write_byte(REG_GPIO_DAT_OUT3, value & 0x03);
+    write_byte(REG_GPIO_DAT_OUT1, (value & ODROID_KEYBOARD_LED_St) ? 0x80 : 0x00);
 
     xSemaphoreGive(i2c_mutex);
 }

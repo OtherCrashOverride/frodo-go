@@ -728,7 +728,7 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 	{
 		gamepad_disabled = !gamepad_disabled;
 
-		odroid_system_led_set(gamepad_disabled);
+		//odroid_system_led_set(gamepad_disabled);
 		printf("%s: gamepad_disabled=%d\n", __func__, gamepad_disabled);		
 	}
 
@@ -748,7 +748,7 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 	LED_ERROR_OFF	// LED blinking, currently off
 */
 
-	int leds = func_flag ? 1 : 0;
+	int leds = func_flag ? ODROID_KEYBOARD_LED_Fn : 0;
 	//leds |= (led_state[0] && frameCount < 25) ? 2 : 0;
 
 	switch(led_state[0])
@@ -759,19 +759,16 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 
 		case LED_ON:
 		case LED_ERROR_ON:
-			leds |= 2;
+			leds |= ODORID_KEYBOARD_LED_Aa;
 			break;
 	}
 	
+	leds |= gamepad_disabled ? ODROID_KEYBOARD_LED_St : 0;
+
 
 	if (activeLEDs != leds)
 	{
-		int value = ODROID_KEYBOARD_LED_NONE;
-		if (leds & 1) value |= ODROID_KEYBOARD_LED_Fn;
-		if (leds & 2) value |= ODORID_KEYBOARD_LED_Aa;
-
-		odroid_keyboard_leds_set((odroid_keyboard_led_t)value);
-
+		odroid_keyboard_leds_set((odroid_keyboard_led_t)leds);
 		activeLEDs = leds;
 	}
 

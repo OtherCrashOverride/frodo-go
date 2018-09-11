@@ -6,18 +6,18 @@
 typedef enum {
     ODROID_KEY_NONE = 0,
     
-    ODROID_KEY_1 = 1,
+    ODROID_KEY_GRAVE_ACCENT = 1,
+    ODROID_KEY_1,
     ODROID_KEY_2,
     ODROID_KEY_3,
     ODROID_KEY_4,
     ODROID_KEY_5,
     ODROID_KEY_6,
     ODROID_KEY_7,
-    ODROID_KEY_8,
 
-    ODROID_KEY_9 = 11,
+    ODROID_KEY_8 = 11,
+    ODROID_KEY_9,
     ODROID_KEY_0,
-    ODROID_KEY_GRAVE_ACCENT,
     ODROID_KEY_ESCAPE,
     ODROID_KEY_Q,
     ODROID_KEY_W,
@@ -84,7 +84,8 @@ typedef enum
 {
     ODROID_KEYBOARD_LED_NONE = 0,
     ODROID_KEYBOARD_LED_Fn = (1 << 0),
-    ODORID_KEYBOARD_LED_Aa = (1 << 1)
+    ODORID_KEYBOARD_LED_Aa = (1 << 1),
+    ODROID_KEYBOARD_LED_St = (1 << 2)
 } odroid_keyboard_led_t;
 
 typedef struct
