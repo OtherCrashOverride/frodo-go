@@ -122,9 +122,13 @@ SemaphoreHandle_t keyboard_state_mutex;
 //uint8_t keystate[8];
 odroid_keyboardstate_t keyboard_state;
 
+static bool i2c_init_flag = false;
+
 
 static void i2c_init()
 {
+    if (i2c_init_flag) abort();
+
     int i2c_master_port = KEYBOARD_I2C_NUM;
 
     i2c_config_t conf;
@@ -132,13 +136,15 @@ static void i2c_init()
     conf.sda_io_num = KEYBOARD_I2C_SDA_IO;
     conf.scl_io_num = KEYBOARD_I2C_SCL_IO;
     conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
-    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
     conf.master.clk_speed = KEYBOARD_I2C_FREQ_HZ;
     
     i2c_param_config(i2c_master_port, &conf);
     i2c_driver_install(i2c_master_port, conf.mode,
                        RX_BUF_DISABLE,
                        TX_BUF_DISABLE, 0);
+
+    i2c_init_flag = true;
 }
 
 
@@ -220,6 +226,7 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
 
 void i2c_reset()
 {
+#if 1
 	// https://github.com/espressif/esp-idf/issues/922
 
 	/*
@@ -262,6 +269,7 @@ void i2c_reset()
 	{
 		printf("%s: Skipping i2c bus recovery.\n", __func__);
 	}
+#endif
 }
 
 void odroid_keyboard_state_key_set(odroid_keyboardstate_t* state, odroid_key_t key, odroid_keystate_t value)
