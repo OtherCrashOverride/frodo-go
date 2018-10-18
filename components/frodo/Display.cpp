@@ -88,6 +88,8 @@ extern "C"
 #include "../odroid/odroid_input.h"
 #include "../odroid/odroid_audio.h"
 #include "../odroid/odroid_system.h"
+
+#include "../../main/image_keyboard_error.h"
 }
 
 
@@ -228,7 +230,18 @@ C64Display::C64Display(C64 *the_c64) : TheC64(the_c64)
 	if(keyboardMutex == NULL) abort();
 
 	odroid_keyboard_event_callback_set(&keyboard_callback);
-	odroid_keyboard_init();
+	if (!odroid_keyboard_init())
+	{
+		printf("ERROR: Keyboard not found.\n");
+
+		ili9341_write_frame_rectangleLE(0, 0, 320, 240, (uint16_t*)image_keyboard_error.pixel_data);
+
+		while(1)
+		{
+			// loop forever
+			vTaskDelay(1);
+		}
+	}
 
 	odroid_input_battery_level_init();
 }

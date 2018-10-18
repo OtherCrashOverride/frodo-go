@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 
 typedef enum {
@@ -97,7 +98,7 @@ typedef struct
 
 
 
-void odroid_keyboard_init();
+bool odroid_keyboard_init();
 void odroid_keyboard_state_key_set(odroid_keyboardstate_t* state, odroid_key_t key, odroid_keystate_t value);
 odroid_keystate_t odroid_keyboard_state_key_get(odroid_keyboardstate_t* state, odroid_key_t key);
 odroid_keyboardstate_t odroid_keyboard_state_get();

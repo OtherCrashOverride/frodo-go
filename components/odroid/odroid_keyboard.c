@@ -171,6 +171,33 @@ static void write_byte(uint8_t reg, uint8_t value)
     }
 }
 
+static bool try_write_byte(uint8_t reg, uint8_t value)
+{
+    i2c_cmd_handle_t cmd;
+    int ret;
+    uint8_t buttons;
+
+    cmd = i2c_cmd_link_create();
+
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, TCA8418_ADDR << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, reg, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, value, ACK_CHECK_EN);
+    i2c_master_stop(cmd);
+    
+    ret = i2c_master_cmd_begin(KEYBOARD_I2C_NUM, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
+
+    if (ret == ESP_OK)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 static uint8_t read_byte(uint8_t reg)
 {
     i2c_cmd_handle_t cmd;
@@ -384,8 +411,11 @@ static void odroid_keyboard_task()
 }
 
 
-void odroid_keyboard_init()
+bool odroid_keyboard_init()
 {
+    bool result;
+
+
     i2c_semaphore = xSemaphoreCreateBinary();
     if (!i2c_semaphore) abort();
 
@@ -415,20 +445,33 @@ void odroid_keyboard_init()
     i2c_init();
 
     
-    write_byte(REG_CFG, CFG_INT_CFG | CFG_KE_IEN);
-    write_byte(REG_INT_STAT, 0x1f); // clear all irqs
+    if (try_write_byte(REG_CFG, CFG_INT_CFG | CFG_KE_IEN))
+    {
+        write_byte(REG_INT_STAT, 0x1f); // clear all irqs
 
-    write_byte(REG_KP_GPIO1, 0x7f); // ROW0-7
-    write_byte(REG_KP_GPIO2, 0xff); // COL0-7
-    write_byte(REG_KP_GPIO3, 0x00); // COL8-9
+        write_byte(REG_KP_GPIO1, 0x7f); // ROW0-7
+        write_byte(REG_KP_GPIO2, 0xff); // COL0-7
+        write_byte(REG_KP_GPIO3, 0x00); // COL8-9
 
-    write_byte(REG_GPIO_DIR1, 0x80); // ROW0-7
-    write_byte(REG_GPIO_DIR3, 0x03); // COL8-9
+        write_byte(REG_GPIO_DIR1, 0x80); // ROW0-7
+        write_byte(REG_GPIO_DIR3, 0x03); // COL8-9
 
 
 
-    odroid_keyboard_initialized = true;
-    xTaskCreatePinnedToCore(&odroid_keyboard_task, "keyboard_task", 2048, NULL, 5, NULL, 1);
+        odroid_keyboard_initialized = true;
+        xTaskCreatePinnedToCore(&odroid_keyboard_task, "keyboard_task", 2048, NULL, 5, NULL, 1);
+
+        result = true;
+    }
+    else
+    {
+        result = false;
+
+        gpio_isr_handler_remove(KEYBOARD_INT);
+        gpio_uninstall_isr_service();
+    }
+
+    return result;
 }
 
 odroid_keyboard_led_t odroid_keyboard_leds_get()
