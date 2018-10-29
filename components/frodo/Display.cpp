@@ -818,14 +818,14 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 					// 	quit_requested = true;
 					// 	break;
 
-					// case OdroidKey_F11:	// F11: NMI (Restore)
-					// 	TheC64->NMI();
+					// case OdroidKey_F11:	// F11: Reset
+					//	TheC64->Reset();
 					// 	break;
 
-					case ODROID_KEY_0:	// F12: Reset
+					case ODROID_KEY_0:	// NMI (RESTORE key)
 						if (func_flag)
 						{
-							TheC64->Reset();
+							TheC64->NMI();
 							func_flag = false;
 							break;
 						}
