@@ -525,7 +525,9 @@ static void translate_key(int key, bool key_up, uint8 *key_matrix, uint8 *rev_ma
 		case ODROID_KEY_8: 
 			c64_key = func_flag ? MATRIX(0,3) | 0x80 : MATRIX(3,3); 
 			break;
-		case ODROID_KEY_9: c64_key = MATRIX(4,0); break;
+		case ODROID_KEY_9:
+			c64_key = func_flag ? MATRIX(6,0) : MATRIX(4,0); 
+			break;
 
 		case ODROID_KEY_SPACE: c64_key = MATRIX(7,4); break;
 		case ODROID_KEY_GRAVE_ACCENT:
