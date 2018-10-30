@@ -822,11 +822,18 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 					//	TheC64->Reset();
 					// 	break;
 
-					case ODROID_KEY_0:	// NMI (RESTORE key)
-						if (func_flag)
+					case ODROID_KEY_0:	
+						if (func_flag)// RESTORE key when Fn lock. Reset emulator if Grave Accent also pressed.
 						{
-							TheC64->NMI();
-							//func_flag = false;
+                                                        odroid_keyboardstate_t kbstate = odroid_keyboard_state_get();
+                                                        if (odroid_keyboard_state_key_get(&kbstate, ODROID_KEY_GRAVE_ACCENT) == ODROID_KEY_PRESSED) {
+                                                                TheC64->Reset();
+                                                                func_flag = false;
+                                                        }
+                                                        else
+                                                        {
+                                                                TheC64->NMI();
+                                                        }
 							break;
 						}
 						// fall through
