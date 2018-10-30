@@ -826,7 +826,7 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 						if (func_flag)
 						{
 							TheC64->NMI();
-							func_flag = false;
+							//func_flag = false;
 							break;
 						}
 						// fall through
