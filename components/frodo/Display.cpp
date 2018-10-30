@@ -557,7 +557,9 @@ static void translate_key(int key, bool key_up, uint8 *key_matrix, uint8 *rev_ma
 
 		case ODROID_KEY_CONTROL: /*case ODROID_KEY_Tab:*/ c64_key = MATRIX(7,2); break;
 		//case ODROID_KEY_RightControl: c64_key = MATRIX(7,5); break;
-		case ODROID_KEY_SHIFT: c64_key = MATRIX(1,7); break;
+		case ODROID_KEY_SHIFT:
+			c64_key = func_flag ? MATRIX(6,4) : MATRIX(1,7);
+			break;
 		//case ODROID_KEY_RightShift: c64_key = MATRIX(6,4); break;
 		case ODROID_KEY_ALTERNATE: /*case ODROID_KEY_LMETA:*/ c64_key = MATRIX(7,5); break;
 		//case ODROID_KEY_RightAlt: /*case ODROID_KEY_RMETA:*/ c64_key = MATRIX(7,5); break;
