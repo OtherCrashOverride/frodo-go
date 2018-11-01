@@ -23,8 +23,13 @@ Below is the current keyboard mapping graphic for this emulator.
 ![QWERTY Map](https://i.imgur.com/i7CNOGj.png)
 
 Please note the symbols above the number keys have changed to match the original C64.
+
 Red means the keys were remapped from what is shown on the actual keyboard.
+
 Blue means that remapping is only active when Fn-lock is on.
+
 H = "HOME / CLR"
+
 RE = "RESTORE"
+
 RS = "Right Shift"
