@@ -525,11 +525,17 @@ static void translate_key(int key, bool key_up, uint8 *key_matrix, uint8 *rev_ma
 		case ODROID_KEY_8: 
 			c64_key = func_flag ? MATRIX(0,3) | 0x80 : MATRIX(3,3); 
 			break;
-		case ODROID_KEY_9: c64_key = MATRIX(4,0); break;
+		case ODROID_KEY_9:
+			c64_key = func_flag ? MATRIX(6,0) : MATRIX(4,0); 
+			break;
 
 		case ODROID_KEY_SPACE: c64_key = MATRIX(7,4); break;
-		case ODROID_KEY_GRAVE_ACCENT: c64_key = MATRIX(7,1); break;
-		case ODROID_KEY_BACKSLASH: c64_key = MATRIX(6,5); break;	// =
+		case ODROID_KEY_GRAVE_ACCENT:
+			c64_key = func_flag ? MATRIX(6,3) : MATRIX(7,1); 
+			break;
+		case ODROID_KEY_BACKSLASH:
+			c64_key = func_flag ? MATRIX(6,6) : MATRIX(6,5);
+			break;
 		case ODROID_KEY_COMMA: c64_key = MATRIX(5,7); break;
 		case ODROID_KEY_PERIOD: c64_key = MATRIX(5,4); break;
 		case ODROID_KEY_MINUS: c64_key = MATRIX(5,0); break;
@@ -551,7 +557,9 @@ static void translate_key(int key, bool key_up, uint8 *key_matrix, uint8 *rev_ma
 
 		case ODROID_KEY_CONTROL: /*case ODROID_KEY_Tab:*/ c64_key = MATRIX(7,2); break;
 		//case ODROID_KEY_RightControl: c64_key = MATRIX(7,5); break;
-		case ODROID_KEY_SHIFT: c64_key = MATRIX(1,7); break;
+		case ODROID_KEY_SHIFT:
+			c64_key = func_flag ? MATRIX(6,4) : MATRIX(1,7);
+			break;
 		//case ODROID_KEY_RightShift: c64_key = MATRIX(6,4); break;
 		case ODROID_KEY_ALTERNATE: /*case ODROID_KEY_LMETA:*/ c64_key = MATRIX(7,5); break;
 		//case ODROID_KEY_RightAlt: /*case ODROID_KEY_RMETA:*/ c64_key = MATRIX(7,5); break;
@@ -812,15 +820,22 @@ void C64Display::PollKeyboard(uint8 *key_matrix, uint8 *rev_matrix, uint8 *joyst
 					// 	quit_requested = true;
 					// 	break;
 
-					// case OdroidKey_F11:	// F11: NMI (Restore)
-					// 	TheC64->NMI();
+					// case OdroidKey_F11:	// F11: Reset
+					//	TheC64->Reset();
 					// 	break;
 
-					case ODROID_KEY_0:	// F12: Reset
-						if (func_flag)
+					case ODROID_KEY_0:	
+						if (func_flag)// RESTORE key when Fn lock. Reset emulator if Grave Accent also pressed.
 						{
-							TheC64->Reset();
-							func_flag = false;
+                                                        odroid_keyboardstate_t kbstate = odroid_keyboard_state_get();
+                                                        if (odroid_keyboard_state_key_get(&kbstate, ODROID_KEY_GRAVE_ACCENT) == ODROID_KEY_PRESSED) {
+                                                                TheC64->Reset();
+                                                                func_flag = false;
+                                                        }
+                                                        else
+                                                        {
+                                                                TheC64->NMI();
+                                                        }
 							break;
 						}
 						// fall through
