@@ -20,7 +20,7 @@ Kernal.ROM
 
 # Keyboard Map
 Below is the current keyboard mapping graphic for this emulator.
-![QWERTY Map](https://i.imgur.com/vM1qqHk.png)
+![QWERTY Map](GO-KB-C64-map.png?raw=true)
 
 Please note the symbols above the number keys have changed to match the original C64.
 
